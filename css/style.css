@@ -1,0 +1,23 @@
+/* NDSU Colors */
+.ndsu-green {
+  background-color: #005643;
+}
+
+.ndsu-yellow {
+  color: #ffc72c;
+}
+.btn-ndsu {
+  background-color: #ffc82e;
+  color: #005643;
+  font-size: larger;
+}
+.btn-ndsu:active,
+.btn-ndsu:hover {
+  color: white;
+}
+
+.navbar .navbar-title {
+  color: #ffffff;
+  font-weight: bold;
+  align-self: center;
+}
