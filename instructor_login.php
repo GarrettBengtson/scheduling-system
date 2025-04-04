@@ -1,4 +1,5 @@
 <?php
+require 'connection.php';
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = $_POST['email'];
     $password = $_POST['password'];
@@ -17,26 +18,33 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     //form handling
     if (empty($errors)) {
         //Do some database call to get the email and password
-        if ((strtolower($_POST['email']) == 'ndsu@ndsu.edu') && ($_POST['password'] == 'testpass')) {
-            //correct credentials
-
-            //adding session data
-            session_start();
-            $_SESSION['email'] = $_POST['email'];
-            $_SESSION['loggedin'] = time();
-
-            //redirection to the welcome page
-            if (ob_get_contents()) ob_end_clean();
-            session_write_close();
-            header('Location: main.php');
-            exit();
+        $stmt = $conn->prepare("SELECT id, username, password FROM User WHERE email = ? AND role = 'Instructor'"); //prepares sql query to select id,name,password from users table
+        $stmt->bind_param("s", $email); //binds username to sql query
+        $stmt->execute(); //runs equery
+        $stmt->store_result(); //stores result for further use
+        if ($stmt->num_rows > 0) { //if true, matching user found
+            $stmt->bind_result($id, $name, $hashed_password); //assigns database values id,name,password to php variables
+            $stmt->fetch(); //gets result from database
+            if ($password === $hashed_password) { //compares user entered password to database password
+                //adding session data
+                session_start();
+                $_SESSION['email'] = $_POST['email'];
+                $_SESSION['loggedin'] = time();
+                $_SESSION["instructor_id"] = $id; //id stored in session
+                $_SESSION["instructor_name"] = $name; //name stored in session
+                //redirection to the welcome page
+                if (ob_get_contents()) ob_end_clean();
+                session_write_close();
+                header('Location: main.php');
+                exit();
+            } else {
+                $error = "Invalid password."; //wrong password message
+            }
         } else {
-            //incorrect credentials
-            print '<p class="text--error">The submitted email address and password do not match those on file!<br>Go back and try again.</p>';
+            $error = "User not found."; //wrong user message
         }
-    } else {
-        //field forgotten
-        print '<p class="text--error">Please make sure you enter both an email address and a password!<br>Go back and try again.</p>';
+        $stmt->close(); //closes statement
+        $conn->close(); //closes database connection
     }
 }
 ?>
@@ -48,6 +56,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <head>
     <meta charset="utf-8" />
     <title></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="./css/style.css" rel="stylesheet">
 </head>
 
 <body>
@@ -70,11 +80,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
                         <button type="submit" class="btn btn-ndsu">Login</button>
                     </form>
-
+                    <?php if (isset($error)): ?>
+                        <div class="alert alert-danger mt-3"><?php echo $error; ?></div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
     </div>
+    <?php include("./components/footer.php"); ?>
 </body>
 
 </html>
