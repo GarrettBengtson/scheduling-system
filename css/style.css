@@ -1,23 +1,50 @@
-/* NDSU Colors */
+.bg {
+  background-color: rgba(10, 57, 39, 0.8);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .ndsu-green {
   background-color: #005643;
 }
 
 .ndsu-yellow {
-  color: #ffc72c;
+  color: #ffc82e;
 }
+
 .btn-ndsu {
   background-color: #ffc82e;
   color: #005643;
   font-size: larger;
 }
+
 .btn-ndsu:active,
 .btn-ndsu:hover {
+  background-color: #073926;
   color: white;
+}
+
+.container {
+  max-width: 700px;
 }
 
 .navbar .navbar-title {
   color: #ffffff;
   font-weight: bold;
   align-self: center;
+}
+
+.header {
+  text-align: center;
+  margin-top: 20px;
+  color: #ffc82e;
+}
+
+.login-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 40px;
 }
