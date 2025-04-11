@@ -1,6 +1,8 @@
 <?php
-require 'Query.php';
+// Include connection to db file
+require_once "connection.php";
 
-class InstructorQuery extends Query {
+class InstructorQuery {
     
+    public function list
 }
