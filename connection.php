@@ -1,8 +1,8 @@
 <?php
 $servername = "rei.cs.ndsu.nodak.edu";
-$username = "zachary_s_weinzierl_371s25";
-$password = "2VkstZKnYN0!";
-$database = "zachary_s_weinzierl_db371s25";
+$username = "garrett_bengtson_371s25";
+$password = "bjkmHtGQlN0!";
+$database = "garrett_bengtson_db371s25";
 
 // Create a connection
 $conn = new mysqli($servername, $username, $password, $database);
