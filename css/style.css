@@ -30,6 +30,19 @@
   max-width: 700px;
 }
 
+.card-body {
+  margin: 20px;
+}
+
+.card-section {
+  background-color: #073926;
+  border-radius: 30px;
+}
+
+.section-header {
+  color: white;
+}
+
 .navbar .navbar-title {
   color: #ffffff;
   font-weight: bold;
