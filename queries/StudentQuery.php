@@ -27,7 +27,7 @@ class StudentQuery {
             + " ON ts.id = a.timeSlotID"
             + " INNER JOIN User AS instructor"
             + " ON instructor.id = ts.instructorID"
-            + " WHERE u.id = $userID";
+            + " WHERE u.id = $userID;";
     }
 
     /*

@@ -14,7 +14,7 @@ class InstructorQuery {
         return "SELECT * FROM Time_Slots AS "
             + " WHERE instructorID = $instructorID"
             + " AND isAvailable = 1"
-            + " AND date = '$date'";
+            + " AND date = '$date';";
     }
 
     /*
@@ -32,7 +32,7 @@ class InstructorQuery {
             + " INNER JOIN Group AS g"
             + " ON g.id = a.groupID"
             + " WHERE instructorID = $instructorID"
-            + " AND date = '$date'";
+            + " AND date = '$date';";
     }
 
     /*
@@ -48,7 +48,7 @@ class InstructorQuery {
             + " INNER JOIN Group AS g"
             + " ON g.id = a.groupID"
             + " WHERE instructorID = $instructorID"
-            + " AND date >= NOW()";
+            + " AND date >= NOW();";
     }
 
     /*
@@ -57,10 +57,10 @@ class InstructorQuery {
     */ 
     public function deleteTimeSlot($timeSlotID){
         return "DELETE FROM Appointment"
-            + " WHERE timeSlotID = $timeSlotID"
+            + " WHERE timeSlotID = $timeSlotID;"
 
             + " DELETE FROM Time_Slots"
-            + " WHERE id = $timeSlotID";
+            + " WHERE id = $timeSlotID;";
     }
 
     /*
@@ -89,11 +89,11 @@ class InstructorQuery {
     public function setupAppointment($timeSlotID, $groupID){
         return "INSERT INTO Appointment"
             + " (timeSlotID, groupID)"
-            + " VALUES ($timeSlotID, $groupID)"
+            + " VALUES ($timeSlotID, $groupID);"
 
             + " UPDATE Time_Slots"
             + " SET isAvailable = 0"
-            + " WHERE id = $timeSlotID";
+            + " WHERE id = $timeSlotID;";
     }
 
     /*
@@ -108,7 +108,7 @@ class InstructorQuery {
         return "INSERT INTO Time_Slots"
             + " (instructorID, startTime, endTime, date, isAvailable)"
             + " VALUES ($instructorID, '$startTime',"
-            + " '$endTime', '$date', 1)";
+            + " '$endTime', '$date', 1);";
     }
 
 }
