@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 //redirection to the welcome page
                 if (ob_get_contents()) ob_end_clean();
                 session_write_close();
-                header('Location: main.php');
+                header('Location: instuctor_dashboard.php');
                 exit();
             } else {
                 $error = "Invalid password."; //wrong password message
