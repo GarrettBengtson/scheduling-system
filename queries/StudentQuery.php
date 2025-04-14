@@ -6,28 +6,28 @@ class StudentQuery {
     //Generic retrieval of available time slots.
     public function getAvailableTimeSlots(){
         return "SELECT ts.id AS timeSlotID, ts.date, ts.startTime, ts.endTime, ts.isAvailable, instructor.email AS instructorEmail" 
-            . " FROM Time_Slots AS ts"
-            . " INNER JOIN User AS instructor"
-            . " ON u.id = ts.instructorID"
-            . " WHERE isAvailable = 1;";
+            + " FROM Time_Slots AS ts"
+            + " INNER JOIN User AS instructor"
+            + " ON u.id = ts.instructorID"
+            + " WHERE isAvailable = 1;";
     }
 
     //Gets information about current appointments of the logged in student
     //Utilize cookies to send the userID while calling this statement.
     public function getCurrentAppointments($userID){
-        return "SELECT a.id AS appointmentID, g.projectName, g.id AS groupID ts.date, ts.startTime, ts.endTime, instructor.email AS instructorEmail"
-            . " FROM Group AS g"
-            . " INNER JOIN Group_Association AS ga"
-            . " ON ga.groupID = g.id"
-            . " INNER JOIN User AS u"
-            . " ON u.id = ga.userID"
-            . " INNER JOIN Appointment AS a"
-            . " ON a.groupID = g.id"
-            . " INNER JOIN Time_Slots AS ts"
-            . " ON ts.id = a.timeSlotID"
-            . " INNER JOIN User AS instructor"
-            . " ON instructor.id = ts.instructorID"
-            . " WHERE u.id = $userID";
+        return "SELECT a.id AS appointmentID, g.projectName, g.id AD groupID ts.date, ts.startTime, ts.endTime, instructor.email AS instructorEmail"
+            + " FROM Group AS g"
+            + " INNER JOIN Group_Association AS ga"
+            + " ON ga.groupID = g.id"
+            + " INNER JOIN User AS u"
+            + " ON u.id = ga.userID"
+            + " INNER JOIN Appointment AS a"
+            + " ON a.groupID = g.id"
+            + " INNER JOIN Time_Slots AS ts"
+            + " ON ts.id = a.timeSlotID"
+            + " INNER JOIN User AS instructor"
+            + " ON instructor.id = ts.instructorID"
+            + " WHERE u.id = $userID;";
     }
 
     /*
@@ -42,13 +42,14 @@ class StudentQuery {
      * Time_Slots.
     */
     public function cancelAppointment($appointmentID){
-        return ["UPDATE Time_Slots AS ts"
-            . " JOIN Appointment AS a"
-            . " ON ts.id = a.timeSlotID"
-            . " SET isAvailable = 1"
-            . " WHERE a.id =$appointmentID;"
-            . " DELETE FROM Appointment"
-            . " WHERE id = $appointmentID;"];
+        return "UPDATE Time_Slots AS ts"
+            + " JOIN Appointment AS a"
+            + " ON ts.id = a.timeSlotID"
+            + " SET isAvailable = 1"
+            + " WHERE a.id =$appointmentID;"
+
+            + " DELETE FROM Appointment"
+            + " WHERE id = $appointmentID;";
     }
 
     /*
@@ -62,15 +63,15 @@ class StudentQuery {
      * from this.
     */
     public function scheduleAppointment($timeSlotID, $groupID){
-        return ["INSERT INTO Appointment"
-            . " (timeSlotID, groupID)"
-            . " VALUES ($timeSlotID, $groupID);"
+        return "INSERT INTO Appointment"
+            + " (timeSlotID, groupID)"
+            + " VALUES ($timeSlotID, $groupID);"
 
-            . " UPDATE Time_Slots AS ts"
-            . " JOIN Appointment AS a"
-            . " ON ts.id = a.timeSlotID"
-            . " SET isAvailable = 0"
-            . " WHERE ts.id = $timeSlotID;"];
+            + " UPDATE Time_Slots AS ts"
+            + " JOIN Appointment AS a"
+            + " ON ts.id = a.timeSlotID"
+            + " SET isAvailable = 0"
+            + " WHERE ts.id = $timeSlotID;";
     }
 }
 ?>
