@@ -25,7 +25,7 @@ class InstructorQuery {
      * logged in user's id.
     */ 
     public function getScheduledAppointmentsByDate($instructorID, $date){
-        return "SELECT g.projectName, ts.startTime, ts.endTime, ts.date, a.id AS appointmentID"
+        return "SELECT g.id AS groupID, g.projectName, ts.startTime, ts.endTime, ts.date, a.id AS appointmentID"
             + " FROM Time_Slots AS ts"
             + " INNER JOIN Appointment AS a"
             + " ON a.timeSlotID = ts.id"
@@ -109,6 +109,19 @@ class InstructorQuery {
             + " (instructorID, startTime, endTime, date, isAvailable)"
             + " VALUES ($instructorID, '$startTime',"
             + " '$endTime', '$date', 1);";
+    }
+
+    /*
+     * List group information based on the inputted groupID.
+    */
+    public function getGroupInfo($groupID){
+        return "SELECT u.username, u.email, g.projectName, IF(u.id = g.groupLeaderID, 'True', 'False') AS isGroupLeader"
+            + " FROM Group AS g"
+            + " INNER JOIN Group_Association AS ga"
+            + " ON g.id = ga.groupID"
+            + " INNER JOIN User AS u"
+            + " ON u.id = ga.userID"
+            + " WHERE g.id = $groupID";
     }
 
 }
