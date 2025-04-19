@@ -32,10 +32,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $_SESSION['loggedin'] = time();
                 $_SESSION["instructor_id"] = $id; //id stored in session
                 $_SESSION["instructor_name"] = $name; //name stored in session
-                //redirection to the welcome page
+                //redirection to the home page
                 if (ob_get_contents()) ob_end_clean();
                 session_write_close();
-                header('Location: instuctor_dashboard.php');
+                header('Location: instructor_dashboard.php');
                 exit();
             } else {
                 $error = "Invalid password."; //wrong password message

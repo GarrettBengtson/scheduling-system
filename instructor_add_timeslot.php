@@ -1,25 +1,51 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+require __DIR__ . '/queries/InstructorQuery.php';
+
+use InstructorQuery\InstructorQuery;
+
+$queries = new InstructorQuery($conn);
+
+
 session_start();
 
 // Dummy data for available timeslots
-$timeslots = [
-    ["startTime" => "09:00 AM", "endTime" => "10:00 AM", "date" => "2025-04-12"],
-    ["startTime" => "11:00 AM", "endTime" => "12:00 PM", "date" => "2025-04-12"],
-    ["startTime" => "02:00 PM", "endTime" => "03:00 PM", "date" => "2025-04-12"]
-];
-
-// Dummy data for groups
-$groups = ["Group A", "Group B", "Group C"];
+// $timeslots = [
+//     ["startTime" => "09:00 AM", "endTime" => "10:00 AM", "date" => "2025-04-12"],
+//     ["startTime" => "11:00 AM", "endTime" => "12:00 PM", "date" => "2025-04-12"],
+//     ["startTime" => "02:00 PM", "endTime" => "03:00 PM", "date" => "2025-04-12"]
+// ];
+$timeslots =  $queries->getAllTimeSlotsOrderedByDate($_SESSION["instructor_id"]);
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $startTime = htmlspecialchars($_POST["startTime"]);
-    $endTime = htmlspecialchars($_POST["endTime"]);
-    $date = htmlspecialchars($_POST["date"]);
+    if (isset($_POST['add'])) {
+        echo "ADDING";
+        $startTime = htmlspecialchars($_POST["startTime"]);
+        $endTime = htmlspecialchars($_POST["endTime"]);
+        $date = htmlspecialchars($_POST["date"]);
 
-    if (empty($startTime) || empty($endTime) || empty($date)) {
-        echo "Please fill in all fields and select a valid group.";
-    } else {
-        //CAll database
+        if (empty($startTime) || empty($endTime) || empty($date)) {
+            echo "Please fill in all fields and select a valid group.";
+        } else {
+            $result = $queries->createTimeSlot($_SESSION["instructor_id"], $startTime, $endTime, $date);
+            $timeslots =  $queries->getAllTimeSlotsOrderedByDate($_SESSION["instructor_id"]);
+            if ($result) {
+                //redirection to the home page
+                if (ob_get_contents()) ob_end_clean();
+                session_write_close();
+                header('Location: instructor_dashboard.php');
+                exit();
+            } else {
+                echo "An error occured when creating timeslot";
+            }
+        }
+    }
+    if (isset($_POST['deleteTimeslotId'])) {
+        echo "DELETING";
+        $result = $queries->deleteTimeSlot($_POST['deleteTimeslotId']);
+        echo $result;
+        $timeslots =  $queries->getAllTimeSlotsOrderedByDate($_SESSION["instructor_id"]);
     }
 }
 ?>
@@ -104,58 +130,71 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="container center-content">
             <div class="card text-center">
                 <?php
-                // if (!isset($_SESSION["loggedin"])) {
-                //     echo '<div class="card-header ndsu-green">' .
-                //         '<h1 class="header">Not Logged In</h1>' .
-                //         '</div>';
-                //     echo "<p>Please return home.</p>";
-                //     echo '<p><a href="logout.php" class="btn btn-ndsu">Go Home</a></p>';
-                // } else {
-                echo '<div class="card-header ndsu-green">' .
-                    '<h1 class="header">Add Timeslot</h1>' .
-                    '</div>';
-                echo '<div class="card-body">';
-                // Table to display available timeslots
-                echo '<div class="card-section">';
-                print '<h2 class="section-header">Taken Timeslots</h2>';
-                print '<table class="table table-success">';
-                print '<thead>';
-                print '<tr>';
-                print '<th scope="col">Start Time</th>';
-                print '<th scope="col">End Time</th>';
-                print '<th scope="col">Date</th>';
-                print '</tr>';
-                print '</thead>';
-                print '<tbody>';
-                foreach ($timeslots as $timeslot) {
-                    print '<tr>';
-                    print '<td>' . htmlspecialchars($timeslot["startTime"]) . '</td>';
-                    print '<td>' . htmlspecialchars($timeslot["endTime"]) . '</td>';
-                    print '<td>' . htmlspecialchars($timeslot["date"]) . '</td>';
-                    print '</tr>';
-                }
-                print '</tbody>';
-                print '</table>';
-                echo '</div>';
+                if (!isset($_SESSION["loggedin"])) {
+                    echo '<div class="card-header ndsu-green">' .
+                        '<h1 class="header">Not Logged In</h1>' .
+                        '</div>';
+                    echo "<p>Please return home.</p>";
+                    echo '<p><a href="logout.php" class="btn btn-ndsu">Go Home</a></p>';
+                } else {
+                    echo '<div class="card-header ndsu-green">' .
+                        '<h1 class="header">Add Timeslot</h1>' .
+                        '</div>';
+                    echo '<div class="card-body">';
+                    // Table to display available timeslots
+                    echo '<div class="card-section">';
+                    print '<h2 class="section-header">Already Made Timeslots</h2>';
+                    if (is_array($timeslots) && count($timeslots) > 0 && isset($timeslots)) {
+                        print '<table class="table table-success">';
+                        print '<thead>';
+                        print '<tr>';
+                        print '<th scope="col">Start Time</th>';
+                        print '<th scope="col">End Time</th>';
+                        print '<th scope="col">Date</th>';
+                        echo '<th scope="col">Actions</th>';
+                        print '</tr>';
+                        print '</thead>';
+                        print '<tbody>';
+                        foreach ($timeslots as $timeslot) {
+                            print '<tr>';
+                            print '<td>' . htmlspecialchars($timeslot["startTime"]) . '</td>';
+                            print '<td>' . htmlspecialchars($timeslot["endTime"]) . '</td>';
+                            print '<td>' . htmlspecialchars($timeslot["date"]) . '</td>';
+                            print '<td><form method="POST" action="">';
+                            print '<input type="hidden" name="deleteTimeslotId" value="' . $timeslot['timeslotId'] . '">';
+                            print '<button type="submit" class="btn btn-danger">Delete Timeslot</button>';
+                            print '</form></td>';
+                            print '</tr>';
+                        }
+                        print '</tbody>';
+                        print '</table>';
+                    } else {
+                        echo '<div class="mx-auto mb-4 no-results-cont text-center"><p class="no-results">There are no timeslots created</p></div>';
+                    }
+                    echo '</div>';
 
-                echo '<h2>Make New Timeslot</h2>';
-                echo '<form method="post" action="instructor_dashboard.php" onsubmit="return validateForm()">';
-                echo '<div class="mb-3">';
-                echo '<label for="startTime" class="form-label">Start Time</label>';
-                echo '<input type="time" class="form-control" id="startTime" name="startTime" required>';
-                echo '</div>';
-                echo '<div class="mb-3">';
-                echo '<label for="endTime" class="form-label">End Time</label>';
-                echo '<input type="time" class="form-control" id="endTime" name="endTime" required>';
-                echo '</div>';
-                echo '<div class="mb-3">';
-                echo '<label for="date" class="form-label">Date</label>';
-                echo '<input type="date" class="form-control" id="date" name="date" required>';
-                echo '</div>';
-                echo '<button type="submit" class="btn btn-ndsu">Add Timeslot</button>';
-                echo '</form>';
-                echo '</div>';
-                // }
+                    echo '<h2>Make New Timeslot</h2>';
+                    echo '<form method="post" action="" onsubmit="return validateForm()">';
+                    echo '<input type="hidden" name="add" id="add value="add">';
+                    echo '<div class="mb-3">';
+                    echo '<label for="startTime" class="form-label">Start Time</label>';
+                    echo '<input type="time" class="form-control" id="startTime" name="startTime" required>';
+                    echo '</div>';
+                    echo '<div class="mb-3">';
+                    echo '<label for="endTime" class="form-label">End Time</label>';
+                    echo '<input type="time" class="form-control" id="endTime" name="endTime" required>';
+                    echo '</div>';
+                    echo '<div class="mb-3">';
+                    echo '<label for="date" class="form-label">Date</label>';
+                    echo '<input type="date" class="form-control" id="date" name="date" required>';
+                    echo '</div>';
+                    echo '<button type="submit" class="btn btn-ndsu">Add Timeslot</button>';
+                    echo '<br/>';
+                    echo '<br/>';
+                    echo '<a href="instructor_dashboard.php" class="btn btn-ndsu">Go Back</a>';
+                    echo '</form>';
+                    echo '</div>';
+                }
                 ?>
             </div>
         </div>

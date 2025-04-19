@@ -1,24 +1,28 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+require __DIR__ . '/queries/InstructorQuery.php';
+
+use InstructorQuery\InstructorQuery;
+
+$queries = new InstructorQuery($conn);
+
 session_start();
 
-// Dummy data for available timeslots
-$timeslots = [
-    ["startTime" => "09:00 AM", "endTime" => "10:00 AM", "date" => "2025-04-12"],
-    ["startTime" => "11:00 AM", "endTime" => "12:00 PM", "date" => "2025-04-12"],
-    ["startTime" => "02:00 PM", "endTime" => "03:00 PM", "date" => "2025-04-12"]
-];
+$timeslots =  $queries->getAllFutureAvailableTimeSlots($_SESSION["instructor_id"]);
+$groups = $queries->getAllGroups();
 
-// Dummy data for groups
-$groups = ["Group A", "Group B", "Group C"];
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $timeslot = htmlspecialchars($_POST["timeslot"]);
-    $group = htmlspecialchars($_POST["group"]);
+    $timeslotID = htmlspecialchars($_POST["timeslot"]);
+    $groupID = htmlspecialchars($_POST["group"]);
 
-    if ($timeslot == "Select Timeslot" || $group == "Select Group") {
+    if ($timeslotID == "Select Timeslot" || $groupID == "Select Group") {
         echo "Please select a valid timeslot and group.";
     } else {
-        // Add Appointment to the database
+        $result = $queries->setupAppointment($timeslotID, $groupID);
+        echo $result;
         echo "Appointment scheduled successfully.";
     }
 }
@@ -54,70 +58,73 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="container center-content">
             <div class="card text-center">
                 <?php
-                // if (!isset($_SESSION["loggedin"])) {
-                //     echo '<div class="card-header ndsu-green">' .
-                //         '<h1 class="header">Not Logged In</h1>' .
-                //         '</div>';
-                //     echo "<p>Please return home.</p>";
-                //     echo '<p><a href="logout.php" class="btn btn-ndsu">Go Home</a></p>';
-                // } else {
-                echo '<div class="card-header ndsu-green">' .
-                    '<h1 class="header">Schedule Appointment</h1>' .
-                    '</div>';
-                echo '<div class="card-body">';
-                // Table to display available timeslots
-                echo '<div class="card-section">';
-                print '<h2 class="section-header">Available Timeslots</h2>';
-                print '<table class="table table-success">';
-                print '<thead>';
-                print '<tr>';
-                print '<th scope="col">Start Time</th>';
-                print '<th scope="col">End Time</th>';
-                print '<th scope="col">Date</th>';
-                print '</tr>';
-                print '</thead>';
-                print '<tbody>';
-                foreach ($timeslots as $timeslot) {
+                if (!isset($_SESSION["loggedin"])) {
+                    echo '<div class="card-header ndsu-green">' .
+                        '<h1 class="header">Not Logged In</h1>' .
+                        '</div>';
+                    echo "<p>Please return home.</p>";
+                    echo '<p><a href="logout.php" class="btn btn-ndsu">Go Home</a></p>';
+                } else {
+                    echo '<div class="card-header ndsu-green">' .
+                        '<h1 class="header">Schedule Appointment</h1>' .
+                        '</div>';
+                    echo '<div class="card-body">';
+                    // Table to display available timeslots
+                    echo '<div class="card-section">';
+                    print '<h2 class="section-header">Future Available Timeslots</h2>';
+                    print '<table class="table table-success">';
+                    print '<thead>';
                     print '<tr>';
-                    print '<td>' . htmlspecialchars($timeslot["startTime"]) . '</td>';
-                    print '<td>' . htmlspecialchars($timeslot["endTime"]) . '</td>';
-                    print '<td>' . htmlspecialchars($timeslot["date"]) . '</td>';
+                    print '<th scope="col">Start Time</th>';
+                    print '<th scope="col">End Time</th>';
+                    print '<th scope="col">Date</th>';
                     print '</tr>';
-                }
-                print '</tbody>';
-                print '</table>';
-                echo '</div>';
+                    print '</thead>';
+                    print '<tbody>';
+                    foreach ($timeslots as $timeslot) {
+                        print '<tr>';
+                        print '<td>' . htmlspecialchars($timeslot["startTime"]) . '</td>';
+                        print '<td>' . htmlspecialchars($timeslot["endTime"]) . '</td>';
+                        print '<td>' . htmlspecialchars(string: $timeslot["date"]) . '</td>';
+                        print '</tr>';
+                    }
+                    print '</tbody>';
+                    print '</table>';
+                    echo '</div>';
 
-                echo '<h2>Schedule New Appointment</h2>';
-                echo '<form method="post" action="instructor_dashboard.php" onsubmit="return validateForm()">';
-                echo '<div class="mb-3">';
-                echo '<label for="timeslot" class="form-label">Timeslot</label>';
-                echo '<div class="input-group">';
-                echo '<select class="form-control" id="timeslot" name="timeslot" required>';
-                echo '<option value="Select Timeslot">Select Timeslot</option>';
-                foreach ($timeslots as $timeslot) {
-                    echo '<option value="' . htmlspecialchars($timeslot["date"] . ' ' . $timeslot["startTime"] . ' - ' . $timeslot["endTime"]) . '">' . htmlspecialchars($timeslot["date"] . ': ' . $timeslot["startTime"] . ' - ' . $timeslot["endTime"]) . '</option>';
+                    echo '<h2>Schedule New Appointment</h2>';
+                    echo '<form method="post" action="" onsubmit="return validateForm()">';
+                    echo '<div class="mb-3">';
+                    echo '<label for="timeslot" class="form-label">Timeslot</label>';
+                    echo '<div class="input-group">';
+                    echo '<select class="form-control" id="timeslot" name="timeslot" required>';
+                    echo '<option value="Select Timeslot">Select Timeslot</option>';
+                    foreach ($timeslots as $timeslot) {
+                        echo '<option value="' . htmlspecialchars($timeslot["timeslotId"]) . '">' . htmlspecialchars($timeslot["date"] . ': ' . $timeslot["startTime"] . ' - ' . $timeslot["endTime"]) . '</option>';
+                    }
+                    echo '</select>';
+                    echo '<span class="input-group-text"><i class="bi bi-caret-down-fill"></i></span>';
+                    echo '</div>';
+                    echo '</div>';
+                    echo '<div class="mb-3">';
+                    echo '<label for="group" class="form-label">Group</label>';
+                    echo '<div class="input-group">';
+                    echo '<select class="form-control" id="group" name="group" required>';
+                    echo '<option value="Select Group">Select Group</option>';
+                    foreach ($groups as $group) {
+                        echo '<option value="' . htmlspecialchars($group['id']) . '">' . htmlspecialchars($group['projectName']) . '</option>';
+                    }
+                    echo '</select>';
+                    echo '<span class="input-group-text"><i class="bi bi-caret-down-fill"></i></span>';
+                    echo '</div>';
+                    echo '</div>';
+                    echo '<button type="submit" class="btn btn-ndsu">Schedule Appointment</button>';
+                    echo '<br/>';
+                    echo '<br/>';
+                    echo '<a href="instructor_dashboard.php" class="btn btn-ndsu">Go Back</a>';
+                    echo '</form>';
+                    echo '</div>';
                 }
-                echo '</select>';
-                echo '<span class="input-group-text"><i class="bi bi-caret-down-fill"></i></span>';
-                echo '</div>';
-                echo '</div>';
-                echo '<div class="mb-3">';
-                echo '<label for="group" class="form-label">Group</label>';
-                echo '<div class="input-group">';
-                echo '<select class="form-control" id="group" name="group" required>';
-                echo '<option value="Select Group">Select Group</option>';
-                foreach ($groups as $group) {
-                    echo '<option value="' . htmlspecialchars($group) . '">' . htmlspecialchars($group) . '</option>';
-                }
-                echo '</select>';
-                echo '<span class="input-group-text"><i class="bi bi-caret-down-fill"></i></span>';
-                echo '</div>';
-                echo '</div>';
-                echo '<button type="submit" class="btn btn-ndsu">Schedule Appointment</button>';
-                echo '</form>';
-                echo '</div>';
-                // }
                 ?>
             </div>
         </div>
