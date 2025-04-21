@@ -18,7 +18,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") { //script only runs on POST
         if ($password === $hashed_password) { //compares user entered password to database password
             $_SESSION["student_id"] = $id; //id stored in session
             $_SESSION["student_name"] = $name; //name stored in session
-            header("Location: studentdashboard.php"); //redirects to studentdashboard
+            header("Location: student_dashboard.php"); //redirects to studentdashboard
             exit(); //script stops running after redirect
         } else {
             $error = "Invalid password."; //wrong password message
@@ -32,30 +32,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") { //script only runs on POST
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <title>Student Login</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        html, body {
-            height: 100%;
-        }
-        body {
-            display: flex;
-            flex-direction: column;
-        }
-        main {
-            flex: 1;
-        }
-    </style>
+    <link href="./css/style.css" rel="stylesheet">
 </head>
 <body>
-    <main>
-        <div class="container d-flex align-items-center justify-content-center" style="min-height: 80vh;">
-            <div class="col-md-5">
-                <div class="card shadow p-4">
-                    <h2 class="text-center mb-4">Student Login</h2>
+    <?php include ("./components/header.php"); ?>
+    <div class="bg">
+        <div class="container center-content">
+            <div class="card text-center">
+                <div class="card-header ndsu-green">
+                    <h1 class="header">Student Login</h1>
+                </div>
+                  <div class="card-body">
                     <form method="POST">
                         <div class="mb-3">
                             <label class="form-label">Username:</label>
@@ -70,11 +62,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") { //script only runs on POST
                     <?php if (isset($error)): ?>
                         <div class="alert alert-danger mt-3"><?php echo $error; ?></div>
                     <?php endif; ?>
-                </div>
+                  </div>
             </div>
         </div>
-    </main>
-
-    <?php include 'footer.php'; ?>
+    </div>
+    <?php include("./components/footer.php"); ?>
 </body>
 </html>

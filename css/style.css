@@ -61,3 +61,25 @@
   gap: 20px;
   margin-top: 40px;
 }
+
+.site-footer {
+    background-color: #005643; 
+    color: #ffc82e; 
+    text-align: center;
+    padding: 20px 0;
+    font-size: 1em;
+    font-weight: 500;
+    line-height: 1.6;
+}
+
+.site-footer a {
+    color: #ffc82e; 
+    text-decoration: none;
+    margin: 0 10px;
+    font-weight: bold;
+}
+
+.site-footer a:hover {
+    text-decoration: underline;
+    color: white;
+}

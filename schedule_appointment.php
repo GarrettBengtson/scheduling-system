@@ -32,7 +32,7 @@ $query = new StudentQuery();
                 <h4 class="mb-4">Available Time Slots</h4>
 
                 <?php
-                // Fetch all group IDs for the student
+                // fetch all group IDs for individual student user
                 $groupStmt = $conn->prepare("SELECT groupID FROM Group_Association WHERE userID = ?");
                 $groupStmt->bind_param("i", $studentID);
                 $groupStmt->execute();
@@ -83,10 +83,9 @@ $query = new StudentQuery();
             </div>
         </section>
 
-        <!-- Navigation Buttons -->
+        <!-- back to dashboard -->
         <section class="d-flex flex-column flex-md-row justify-content-center gap-4">
-            <a href="update.php" class="btn btn-ndsu px-4 py-2">Update Appointment(s)</a>
-            <a href="studentdashboard.php" class="btn btn-ndsu px-4 py-2">Back to Dashboard</a>
+            <a href="student_dashboard.php" class="btn btn-ndsu px-4 py-2">Back to Dashboard</a>
         </section>
     </main>
 </div>

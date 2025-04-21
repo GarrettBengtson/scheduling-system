@@ -1,15 +1,36 @@
 <?php
 session_start();
 require 'connection.php';
-require 'StudentQuery.php';
+require 'queries/StudentQuery.php';
 
 if (!isset($_SESSION["student_id"])) {
-    header("Location: studentlogin.php");
+    header("Location: student_login.php");
     exit();
 }
 
 $studentID = $_SESSION['student_id'];
 $query = new StudentQuery();
+
+//appointment cancellation
+if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['action']) && $_POST['action'] === 'cancel') {
+    $appointmentID = intval($_POST['appointment_id']);
+    $sql = $query->cancelAppointment($appointmentID);
+
+    if ($conn->multi_query($sql)) {
+        // clear out remaining result sets
+        do {
+            if ($result = $conn->store_result()) {
+                $result->free();
+            }
+        } while ($conn->more_results() && $conn->next_result());
+
+        // dashboard refresh
+        header("Location: student_dashboard.php");
+        exit();
+    } else {
+        echo "<div class='alert alert-danger text-center'>Error cancelling: " . $conn->error . "</div>";
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -25,46 +46,53 @@ $query = new StudentQuery();
     <main class="container py-5">
         <div class="text-center mb-4">
             <h2 class="header">Welcome to your Dashboard, <?php echo $_SESSION["student_name"]; ?>!</h2>
-
         </div>
 
-<section class="mb-5">
-    <div class="card p-4 shadow">
-        <h4 class="mb-4">Your Group(s) and Appointment Info</h4>
+        <!-- appointment info -->
+        <section class="mb-5">
+            <div class="card p-4 shadow">
+                <h4 class="mb-4">Your Group(s) and Appointment Info</h4>
 
-        <?php
-        $result = $conn->query($query->getCurrentAppointments($studentID));
+                <?php
+                $result = $conn->query($query->getCurrentAppointments($studentID));
 
+                if ($result && $result->num_rows > 0):
+                    while ($row = $result->fetch_assoc()):
+                        $date = date("l, F j, Y", strtotime($row['date']));
+                        $start = date("g:i A", strtotime($row['startTime']));
+                        $end = date("g:i A", strtotime($row['endTime']));
+                        ?>
+                        <div class="mb-4 border rounded p-3">
+                            <h5 class="mb-2">Group ID: <?php echo $row['groupID']; ?> (<?php echo $row['projectName']; ?>)</h5>
+                            <p class="mb-1"><strong>Scheduled:</strong> <?php echo "$date from $start to $end"; ?></p>
+                            <p><strong>Instructor:</strong> <?php echo htmlspecialchars($row['instructorEmail']); ?></p>
 
-        if ($result && $result->num_rows > 0):
-            while ($row = $result->fetch_assoc()):
-                $date = date("l, F j, Y", strtotime($row['date']));
-                $start = date("g:i A", strtotime($row['startTime']));
-                $end = date("g:i A", strtotime($row['endTime']));
+                            <div class="d-flex gap-2 mt-2">
+                                <!-- cancel form -->
+                                <form method="POST" onsubmit="return confirm('Are you sure you want to cancel this appointment?');">
+                                    <input type="hidden" name="appointment_id" value="<?php echo $row['appointmentID']; ?>">
+                                    <input type="hidden" name="action" value="cancel">
+                                    <button type="submit" class="btn btn-danger">Cancel Appointment</button>
+                                </form>
+
+                                <!-- update link -->
+                                <a href="student_update.php?appointment_id=<?php echo $row['appointmentID']; ?>" class="btn btn-primary">
+                                    Update Appointment
+                                </a>
+                            </div>
+                        </div>
+                    <?php
+                    endwhile;
+                else:
+                    echo "<p class='text-warning'>You are not assigned to any group or have no scheduled appointments.</p>";
+                endif;
                 ?>
-            <div class="mb-4 border rounded p-3">
-                <h5 class="mb-2">Group ID: <?php echo $row['groupID']; ?> (<?php echo $row['projectName']; ?>)</h5>
-                <p class="mb-1"><strong>Scheduled:</strong> <?php echo "$date from $start to $end"; ?></p>
-                <p><strong>Instructor:</strong> <?php echo htmlspecialchars($row['instructorEmail']); ?></p>
-
-                <form method="POST" onsubmit="return confirm('Are you sure you want to cancel this appointment?');" class="mb-2">
-                            <input type="hidden" name="appointment_id" value="<?php echo $row['appointmentID']; ?>">
-                            <input type="hidden" name="action" value="cancel">
-                            <button type="submit" class="btn btn-danger">Cancel Appointment</button>
-                        </form>
             </div>
-        <?php
-            endwhile;
-        else:
-            echo "<p class='text-warning'>You are not assigned to any group or have no scheduled appointments.</p>";
-        endif;
-        ?>
-    </div>
-</section>
+        </section>
 
+        <!-- schedule appointment button -->
         <section class="d-flex flex-column flex-md-row justify-content-center gap-4">
             <a href="schedule_appointment.php" class="btn btn-ndsu px-4 py-2">Schedule New Appointment</a>
-            <a href="update.php" class="btn btn-ndsu px-4 py-2">Update Appointment</a>
         </section>
     </main>
 </div>

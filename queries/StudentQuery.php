@@ -15,7 +15,7 @@ class StudentQuery {
     //Gets information about current appointments of the logged in student
     //Utilize cookies to send the userID while calling this statement.
     public function getCurrentAppointments($userID){
-        return "SELECT a.id AS appointmentID, g.projectName, g.id AD groupID ts.date, ts.startTime, ts.endTime, instructor.email AS instructorEmail"
+        return "SELECT a.id AS appointmentID, g.projectName, g.id AS groupID, ts.date, ts.startTime, ts.endTime, instructor.email AS instructorEmail"
             + " FROM Group AS g"
             + " INNER JOIN Group_Association AS ga"
             + " ON ga.groupID = g.id"
