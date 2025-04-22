@@ -1,3 +1,10 @@
+<?php
+//check if session exists
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+?>
+
 <nav class="navbar navbar-expand-lg ndsu-green">
     <div class="container-fluid">
         <!-- Logo -->
@@ -16,12 +23,19 @@
         <!-- Navbar Links -->
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <a class="nav-link btn btn-ndsu" href="index.php">Login</a>
-                </li>
+                <!-- If user is logged in, display logout button -->
+                <?php if (isset($_SESSION['username'])): ?>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-ndsu" href="logout.php">Logout</a>
+                    </li>
+                <!-- Otherwise, display logout button-->
+                <?php else: ?>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-ndsu" href="login.php">Login</a>
+                    </li>
+                <?php endif; ?>
             </ul>
         </div>
-
 
     </div>
 </nav>
