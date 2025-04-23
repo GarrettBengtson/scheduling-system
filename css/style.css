@@ -86,3 +86,30 @@
     text-decoration: underline;
     color: white;
 }
+
+.table-bottom {
+  margin-bottom: 40px;
+}
+.no-results-cont {
+  height: 60px;
+  display: flex;
+  justify-content: center;
+}
+.no-results {
+  border-radius: 50px;
+  background-color: #ffc82e;
+  color: #005643;
+  padding: 10px;
+  width: 400px;
+  text-align: center;
+  align-self: center;
+}
+.name {
+  border-radius: 20px;
+  background-color: #ffc82e;
+  margin-right: 50px;
+  color: #005643;
+  padding: 10px;
+  font-size: large;
+  font-weight: 500;
+}
