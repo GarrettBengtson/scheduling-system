@@ -1,4 +1,7 @@
-﻿<!DOCTYPE html>
+<?php
+session_start();
+?>
+<!DOCTYPE html>
 
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 
@@ -20,8 +23,7 @@
                 </div>
                 <div class="card-body">
                     <div class="login-buttons">
-                        <a href="student_login.php" class="btn btn-ndsu">Login as Student</a>
-                        <a href="instructor_login.php" class="btn btn-ndsu">Login as Instructor</a>
+                        <a href="login.php" class="btn btn-ndsu">Login</a>
                     </div>
                 </div>
             </div>
