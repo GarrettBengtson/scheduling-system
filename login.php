@@ -29,6 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $_SESSION['loggedin'] = time();
                 $_SESSION["user_id"] = $id; //id stored in session
                 $_SESSION["first_name"] = $firstName; //name stored in session
+                $_SESSION["last_name"] = $lastName;
                 //redirection to the welcome page
                 if (ob_get_contents())
                     ob_end_clean();
