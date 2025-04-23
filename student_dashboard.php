@@ -1,14 +1,19 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 session_start();
 require 'connection.php';
-require 'queries/StudentQuery.php';
+require __DIR__ . '/queries/StudentQuery.php';
 
-if (!isset($_SESSION["student_id"])) {
-    header("Location: student_login.php");
+use StudentQuery\StudentQuery;
+if (!isset($_SESSION["user_id"])) {
+    header("Location: login.php");
     exit();
 }
 
-$studentID = $_SESSION['student_id'];
+$studentID = $_SESSION['user_id'];
 $query = new StudentQuery();
 
 //appointment cancellation
@@ -45,7 +50,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['action']) && $_POST['
 <div class="bg">
     <main class="container py-5">
         <div class="text-center mb-4">
-            <h2 class="header">Welcome to your Dashboard, <?php echo $_SESSION["student_name"]; ?>!</h2>
+            <h2 class="header">Welcome to your Dashboard, <?php echo $_SESSION["first_name"] . '' . $_SESSION["last_name"]; ?>!</h2>
         </div>
 
         <!-- appointment info -->
@@ -92,7 +97,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['action']) && $_POST['
 
         <!-- schedule appointment button -->
         <section class="d-flex flex-column flex-md-row justify-content-center gap-4">
-            <a href="schedule_appointment.php" class="btn btn-ndsu px-4 py-2">Schedule New Appointment</a>
+            <a href="student_schedule_appointment.php" class="btn btn-ndsu px-4 py-2">Schedule New Appointment</a>
         </section>
     </main>
 </div>

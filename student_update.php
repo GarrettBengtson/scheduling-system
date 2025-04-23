@@ -1,14 +1,16 @@
 <?php
 session_start();
 require 'connection.php';
-require 'queries/StudentQuery.php';
+require __DIR__ . '/queries/StudentQuery.php';
 
-if (!isset($_SESSION['student_id'])) {
-    header("Location: student_login.php");
+use StudentQuery\StudentQuery;
+
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
     exit();
 }
 
-$studentID = $_SESSION['student_id'];
+$studentID = $_SESSION['user_id'];
 $query = new StudentQuery();
 $statusMsg = "";
 
@@ -68,7 +70,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['appointment_id']) && 
     <main class="container py-5">
         <div class="text-center mb-4">
             <h2 class="header">Update Your Appointment</h2>
-            <p class="ndsu-yellow">Welcome, <?php echo $_SESSION["student_name"]; ?>!</p>
         </div>
 
         <?php echo $statusMsg; ?>
@@ -112,8 +113,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['appointment_id']) && 
                         <button type="submit" class="btn btn-ndsu px-4 py-2">Update Appointment</button>
                     </form>
                 </div>
-                <?php else: ?>
-                    <p class="text-muted">Could not load the selected appointment.</p>
+                
                 <?php endif; ?>
             </div>
         </section>

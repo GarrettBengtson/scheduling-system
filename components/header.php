@@ -23,19 +23,19 @@ if (session_status() === PHP_SESSION_NONE) {
         <!-- Navbar Links -->
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
-                <?php if ($_SESSION['user_role'] == 'Student'){
-                    <li class="nav-item">
-                        echo '<div class="name" >Student/' . $_SESSION['first_name'] . ' ' . $_SESSION['last_name'] . '</div>';
-                    </li>
+                <?php if (isset($_SESSION['user_role'])){
+                        if ($_SESSION['user_role'] == 'Student'){
+                            echo '<li class="nav-item">';
+                                echo '<div class="name" >Student/' . $_SESSION['first_name'] . ' ' . $_SESSION['last_name'] . '</div>';
+                            echo '</li>';
+                        }
+                        if ($_SESSION['user_role'] == 'Instructor'){
+                            echo '<li class="nav-item">';
+                                echo '<div class="name" >Instructor/' . $_SESSION['first_name'] . ' ' . $_SESSION['last_name'] . '</div>';
+                            echo '</li>';
+                        } 
                 }
-                <?php endif; ?>
-
-                <?php if ($_SESSION['user_role'] == 'Instructor'){
-                    <li class="nav-item">
-                        echo '<div class="name" >Instructor/' . $_SESSION['first_name'] . ' ' . $_SESSION['last_name'] . '</div>';
-                    </li>
-                }
-                <?php endif; ?>
+                ?>
                         
                 <!-- If user is logged in, display logout button -->
                 <?php if (isset($_SESSION['username'])): ?>

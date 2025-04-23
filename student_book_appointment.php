@@ -1,14 +1,15 @@
 <?php
 session_start();
 require 'connection.php';
-require 'queries/StudentQuery.php'; 
+require __DIR__ . '/queries/StudentQuery.php';
 
-if (!isset($_SESSION["student_id"])) {
-    header("Location: studentlogin.php");
+use StudentQuery\StudentQuery;
+if (!isset($_SESSION["user_id"])) {
+    header("Location: login.php");
     exit();
 }
 
-$studentID = $_SESSION['student_id'];
+$studentID = $_SESSION['user_id'];
 $query = new StudentQuery();
 
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['slot_id']) && isset($_POST['group_id'])) {

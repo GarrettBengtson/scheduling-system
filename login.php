@@ -14,12 +14,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     //form handling
     if (empty($errors)) {
         //Do some database call to get the email and password
-        $stmt = $conn->prepare("SELECT id, firstName, password, role FROM User WHERE username = ?"); //prepares sql query to select id,name,password from users table
+        $stmt = $conn->prepare("SELECT id, firstName, lastName, password, role FROM User WHERE username = ?"); //prepares sql query to select id,name,password from users table
         $stmt->bind_param("s", $username); //binds username to sql query
         $stmt->execute(); //runs query
         $stmt->store_result(); //stores result for further use
         if ($stmt->num_rows > 0) { //if true, matching user found
-            $stmt->bind_result($id, $firstName, $hashed_password, $role); //assigns database values id,firstName,password,role to php variables
+            $stmt->bind_result($id, $firstName, $lastName, $hashed_password, $role); //assigns database values id,firstName,password,role to php variables
             $stmt->fetch(); //gets result from database
             if ($password === $hashed_password) { //compares user entered password to database password
                 //adding session data
@@ -34,18 +34,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 if (ob_get_contents())
                     ob_end_clean();
                 session_write_close();
-<<<<<<< Updated upstream:instructor_login.php
                 header('Location: instuctor_dashboard.php');
-=======
 
                 if($role == 'Instructor'){
-                    header('Location: instructor_main.php');
+                    header('Location: instructor_dashboard.php');
                 }
                 else{
-                    header('Location: studentdashboard.php');
+                    header('Location: student_dashboard.php');
                 }
-
->>>>>>> Stashed changes:login.php
                 exit();
             } else {
                 $error = "Invalid password."; //wrong password message

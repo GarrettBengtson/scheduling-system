@@ -1,13 +1,16 @@
 <?php
 session_start();
 require 'connection.php';
-require 'StudentQuery.php';
 
-if (!isset($_SESSION["student_id"])) {
-    header("Location: studentlogin.php");
+require __DIR__ . '/queries/StudentQuery.php';
+
+use StudentQuery\StudentQuery;
+
+if (!isset($_SESSION["user_id"])) {
+    header("Location: login.php");
     exit();
 }
-$studentID = $_SESSION['student_id'];
+$studentID = $_SESSION['user_id'];
 $query = new StudentQuery();
 ?>
 <!DOCTYPE html>
@@ -24,7 +27,6 @@ $query = new StudentQuery();
     <main class="container py-5">
         <div class="text-center mb-4">
             <h2 class="header">Schedule Appointment</h2>
-            <p class="ndsu-yellow">Welcome, <?php echo $_SESSION["student_name"]; ?>!</p>
         </div>
 
         <section class="mb-5">
@@ -60,7 +62,7 @@ $query = new StudentQuery();
                                 echo "<div class='card p-3 shadow-sm text-center'>";
                                 echo "<h5 class='mb-2'>$date</h5>";
                                 echo "<p class='mb-3'>$time</p>";
-                                echo "<form method='POST' action='book_appointment.php'>";
+                                echo "<form method='POST' action='student_book_appointment.php'>";
                                 echo "<input type='hidden' name='slot_id' value='$id'>";
                                 echo "<div class='mb-2'>";
                                 echo "<select name='group_id' class='form-select' required>";

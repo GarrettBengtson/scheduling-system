@@ -16,50 +16,50 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $SELECTED_DATE = $_POST['appointmentDate'];
     }
     if (isset($_POST['seeAll'])) {
-        echo "See All";
+        //echo "See All";
         $SELECTED_DATE = "All Future";
         $appointments =  $queries->getAllFutureScheduledAppointments($_SESSION["user_id"]);
 
         $timeslots =  $queries->getAllFutureAvailableTimeSlots($_SESSION["user_id"]);
     } else if (isset($_POST['filter'])) {
-        echo "Filter";
+        //echo "Filter";
         $appointments =  $queries->getScheduledAppointmentsByDate($_SESSION["user_id"], $SELECTED_DATE);
 
         $timeslots =  $queries->getAvailableTimeSlotsByDate($_SESSION["user_id"], $SELECTED_DATE);
     } else if (isset($_POST['cancelAppointmentId'])) {
-        echo "Canceling Appointment";
+        //echo "Canceling Appointment";
         $SELECTED_DATE = $_POST['selectedDate'];
         $result = $queries->cancelGroupAppointment($_POST['cancelAppointmentId']);
         echo $result;
         if ($SELECTED_DATE == "All Future") {
-            echo "All Future";
+            //echo "All Future";
             $appointments =  $queries->getAllFutureScheduledAppointments($_SESSION["user_id"]);
 
             $timeslots =  $queries->getAllFutureAvailableTimeSlots($_SESSION["user_id"]);
         } else {
-            echo "Specific Date";
+            //echo "Specific Date";
             $appointments =  $queries->getScheduledAppointmentsByDate($_SESSION["user_id"], $SELECTED_DATE);
 
             $timeslots =  $queries->getAvailableTimeSlotsByDate($_SESSION["user_id"], $SELECTED_DATE);
         }
     } else if (isset($_POST['deleteTimeslotId'])) {
-        echo "Deleting Timeslot";
+        //echo "Deleting Timeslot";
         $SELECTED_DATE = $_POST['selectedDate'];
         $result = $queries->deleteTimeSlot($_POST['deleteTimeslotId']);
         echo $result;
         if ($SELECTED_DATE == "All Future") {
-            echo "All Future";
+            //echo "All Future";
             $appointments =  $queries->getAllFutureScheduledAppointments($_SESSION["user_id"]);
 
             $timeslots =  $queries->getAllFutureAvailableTimeSlots($_SESSION["user_id"]);
         } else {
-            echo "Specific Date";
+            //echo "Specific Date";
             $appointments =  $queries->getScheduledAppointmentsByDate($_SESSION["user_id"], $SELECTED_DATE);
 
             $timeslots =  $queries->getAvailableTimeSlotsByDate($_SESSION["user_id"], $SELECTED_DATE);
         }
     } else if (isset($_POST['groupId'])) {
-        echo "Viewing group";
+        //echo "Viewing group";
         $_SESSION['groupId'] = $_POST['groupId'];
         if (ob_get_contents()) ob_end_clean();
         session_write_close();
