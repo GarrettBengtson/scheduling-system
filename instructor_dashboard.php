@@ -30,7 +30,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         //echo "Canceling Appointment";
         $SELECTED_DATE = $_POST['selectedDate'];
         $result = $queries->cancelGroupAppointment($_POST['cancelAppointmentId']);
-        echo $result;
+        //echo $result;
         if ($SELECTED_DATE == "All Future") {
             //echo "All Future";
             $appointments =  $queries->getAllFutureScheduledAppointments($_SESSION["user_id"]);
@@ -46,7 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         //echo "Deleting Timeslot";
         $SELECTED_DATE = $_POST['selectedDate'];
         $result = $queries->deleteTimeSlot($_POST['deleteTimeslotId']);
-        echo $result;
+        //echo $result;
         if ($SELECTED_DATE == "All Future") {
             //echo "All Future";
             $appointments =  $queries->getAllFutureScheduledAppointments($_SESSION["user_id"]);
