@@ -35,7 +35,12 @@ $query = new StudentQuery();
 
                 <?php
                 // fetch all group IDs for individual student user
-                $groupStmt = $conn->prepare("SELECT groupID FROM Group_Association WHERE userID = ?");
+                $groupStmt = $conn->prepare("
+                SELECT g.id AS groupID, g.projectName
+                FROM Group_Association ga
+                INNER JOIN `Group` g ON ga.groupID = g.id
+                WHERE ga.userID = ?
+                ");
                 $groupStmt->bind_param("i", $studentID);
                 $groupStmt->execute();
                 $groupResult = $groupStmt->get_result();
@@ -43,7 +48,8 @@ $query = new StudentQuery();
                 $groupOptions = "";
                 while ($group = $groupResult->fetch_assoc()) {
                     $gid = $group['groupID'];
-                    $groupOptions .= "<option value='$gid'>Group $gid</option>";
+                    $gname = htmlspecialchars($group['projectName']); // prevent XSS
+                    $groupOptions .= "<option value='$gid'>$gname (ID: $gid)</option>";
                 }
                 $groupStmt->close();
                 ?>

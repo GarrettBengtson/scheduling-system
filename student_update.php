@@ -14,46 +14,48 @@ $studentID = $_SESSION['user_id'];
 $query = new StudentQuery();
 $statusMsg = "";
 
-// get appointment ID from student
+// success message
+if (isset($_GET['updated']) && $_GET['updated'] == 1) {
+    $statusMsg = "<div class='alert alert-success text-center'>Appointment successfully updated.</div>";
+}
+
+// get appointment ID
 $appointmentID = isset($_GET['appointment_id']) ? intval($_GET['appointment_id']) : null;
 
 if (!$appointmentID) {
     die("<div class='alert alert-danger text-center'>No appointment selected for update.</div>");
 }
 
-// handle update submission
+// handle update form from submission
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['appointment_id']) && isset($_POST['new_slot_id']) && $_POST['action'] === 'update') {
-    $appointmentID = $_POST['appointment_id'];
-    $newSlotID = $_POST['new_slot_id'];
+    $oldAppointmentID = intval($_POST['appointment_id']);
+    $newSlotID = intval($_POST['new_slot_id']);
 
-    // get groupID from appointment
+    // get old appointment group ID
     $groupIDQuery = $conn->prepare("SELECT groupID FROM Appointment WHERE id = ?");
-    $groupIDQuery->bind_param("i", $appointmentID);
+    $groupIDQuery->bind_param("i", $oldAppointmentID);
     $groupIDQuery->execute();
     $groupIDQuery->bind_result($groupID);
     $groupIDQuery->fetch();
     $groupIDQuery->close();
 
-    // cancel the old appointment first
-    $cancelStmt1 = "UPDATE Time_Slots AS ts JOIN Appointment AS a ON ts.id = a.timeSlotID SET ts.isAvailable = 1 WHERE a.id = $appointmentID;";
-    $cancelStmt2 = "DELETE FROM Appointment WHERE id = $appointmentID;";
+    // cancel old appointment
+    $conn->query("UPDATE Time_Slots AS ts JOIN Appointment AS a ON ts.id = a.timeSlotID SET ts.isAvailable = 1 WHERE a.id = $oldAppointmentID;");
+    $conn->query("DELETE FROM Appointment WHERE id = $oldAppointmentID;");
 
-    // then schedule new one
-    $scheduleStmt1 = "INSERT INTO Appointment (timeSlotID, groupID) VALUES ($newSlotID, $groupID);";
-    $scheduleStmt2 = "UPDATE Time_Slots SET isAvailable = 0 WHERE id = $newSlotID;";
+    // use new appointment
+    $insertStmt = $conn->prepare("INSERT INTO Appointment (timeSlotID, groupID) VALUES (?, ?)");
+    $insertStmt->bind_param("ii", $newSlotID, $groupID);
+    $insertStmt->execute();
+    $newAppointmentID = $insertStmt->insert_id;
+    $insertStmt->close();
 
-    $statements = [$cancelStmt1, $cancelStmt2, $scheduleStmt1, $scheduleStmt2];
+    // update new time slot availability
+    $conn->query("UPDATE Time_Slots SET isAvailable = 0 WHERE id = $newSlotID;");
 
-    foreach ($statements as $sql) {
-        if (!empty($sql) && !$conn->query($sql)) {
-            $statusMsg = "<div class='alert alert-danger text-center'>Error: $sql<br>" . $conn->error . "</div>";
-            break;
-        }
-    }
-
-    if (!$statusMsg) {
-        $statusMsg = "<div class='alert alert-success text-center'>Appointment successfully updated.</div>";
-    }
+    // redirect to new appointment ID and show success
+    header("Location: student_update.php?appointment_id=$newAppointmentID&updated=1");
+    exit();
 }
 ?>
 <!DOCTYPE html>
@@ -78,7 +80,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['appointment_id']) && 
             <div class="card p-4 shadow">
                 <h4 class="mb-4">Your Current Appointment Info</h4>
                 <?php
-                $sql = rtrim($query->getCurrentAppointments($studentID), ';'); // remove semicolon
+                // get updated appointment details
+                $sql = rtrim($query->getCurrentAppointments($studentID), ';');
                 $sql .= " AND a.id = $appointmentID";
                 $result = $conn->query($sql);
 
@@ -89,7 +92,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['appointment_id']) && 
                     $end = date("g:i A", strtotime($row['endTime']));
                     ?>
                 <div class="mb-4 border rounded p-3">
-                    <h5>Group ID: <?php echo $row['groupID']; ?> (<?php echo $row['projectName']; ?>)</h5>
+                    <h5>Group ID: <?php echo $row['groupID']; ?> (<?php echo htmlspecialchars($row['projectName']); ?>)</h5>
                     <p><strong>Currently Scheduled:</strong> <?php echo "$date from $start to $end"; ?></p>
                     <p><strong>Instructor:</strong> <?php echo htmlspecialchars($row['instructorEmail']); ?></p>
 
@@ -113,7 +116,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['appointment_id']) && 
                         <button type="submit" class="btn btn-ndsu px-4 py-2">Update Appointment</button>
                     </form>
                 </div>
-                
+                <?php else: ?>
+                    <p class="text-warning text-center">Unable to load appointment details. It may have been canceled.</p>
                 <?php endif; ?>
             </div>
         </section>
